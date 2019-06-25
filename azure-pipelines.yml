@@ -5,12 +5,12 @@ jobs:
   strategy:
     matrix:
       Windows:
-        VM_IMAGE: vs2019
+        VM_IMAGE: windows-2019
         BOOTSTRAP: bootstrap-vcpkg.bat
         VCPKG: vcpkg.exe
         VCPKG_TRIPLET: x64-windows
       Windows_Static:
-        VM_IMAGE: vs2019
+        VM_IMAGE: windows-2019
         BOOTSTRAP: bootstrap-vcpkg.bat
         VCPKG: vcpkg.exe
         VCPKG_TRIPLET: x64-windows-static
