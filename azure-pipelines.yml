@@ -3,7 +3,7 @@ trigger:
 jobs:
 - job: x64-windows
   pool:
-    vmImage: 'vs2019-win2019'
+    vmImage: windows-2019
   steps:
     - script: bootstrap-vcpkg.bat
       displayName: Build vcpkg
