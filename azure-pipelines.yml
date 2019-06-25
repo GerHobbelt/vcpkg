@@ -21,13 +21,14 @@ jobs:
         VCPKG_TRIPLET: x64-linux
       MacOS:
         VM_IMAGE: macOS-10.14
-        BOOTSTRAP: ./bootstrap-vcpkg.sh
+        BOOTSTRAP: brew install gcc && ./bootstrap-vcpkg.sh
         VCPKG: ./vcpkg
         VCPKG_TRIPLET: x64-osx
   pool:
     vmImage: $(VM_IMAGE)
   steps:
-    - script: $(BOOTSTRAP)
+    - script: |
+        $(BOOTSTRAP)
       displayName: Build vcpkg
     - script: |
         $(VCPKG) install icu
@@ -40,7 +41,7 @@ jobs:
       displayName: Build packages
     - script: $(VCPKG) export icu fontconfig harfbuzz[graphite2,icu,ucdn] luajit --raw --output=vcpkg
       env:
-        VCPKG_DEFAULT_TRIPLET: x64-windows-static
+        VCPKG_DEFAULT_TRIPLET: $(VCPKG_TRIPLET)
         VCPKG_PLATFORM_TOOLSET: v142
       displayName: Export packages
     - publish: $(System.DefaultWorkingDirectory)/vcpkg
