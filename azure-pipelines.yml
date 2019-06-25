@@ -1,25 +1,47 @@
 trigger:
   - master
 jobs:
-- job: x64_windows
+- job: Build
+  strategy:
+    matrix:
+      Windows:
+        VM_IMAGE: vs2019
+        BOOTSTRAP: bootstrap-vcpkg.bat
+        VCPKG: vcpkg.exe
+        VCPKG_TRIPLET: x64-windows
+      Windows_Static:
+        VM_IMAGE: vs2019
+        BOOTSTRAP: bootstrap-vcpkg.bat
+        VCPKG: vcpkg.exe
+        VCPKG_TRIPLET: x64-windows-static
+      Linux:
+        VM_IMAGE: ubuntu-16.04
+        BOOTSTRAP: ./bootstrap-vcpkg.sh
+        VCPKG: ./vcpkg
+        VCPKG_TRIPLET: x64-linux
+      MacOS:
+        VM_IMAGE: macOS-10.14
+        BOOTSTRAP: ./bootstrap-vcpkg.sh
+        VCPKG: ./vcpkg
+        VCPKG_TRIPLET: x64-osx
   pool:
-    vmImage: windows-2019
+    vmImage: $(VM_IMAGE)
   steps:
-    - script: bootstrap-vcpkg.bat
+    - script: $(BOOTSTRAP)
       displayName: Build vcpkg
     - script: |
-        vcpkg install icu
-        vcpkg install fontconfig
-        vcpkg install harfbuzz[graphite2,icu,ucdn]
-        vcpkg install luajit
+        $(VCPKG) install icu
+        $(VCPKG) install fontconfig
+        $(VCPKG) install harfbuzz[graphite2,icu,ucdn]
+        $(VCPKG) install luajit
       env:
-        VCPKG_DEFAULT_TRIPLET: x64-windows-static
+        VCPKG_DEFAULT_TRIPLET: $(VCPKG_TRIPLET)
         VCPKG_PLATFORM_TOOLSET: v142
       displayName: Build packages
-    - script: vcpkg export icu fontconfig harfbuzz[graphite2,icu,ucdn] luajit --raw --output=vcpkg
+    - script: $(VCPKG) export icu fontconfig harfbuzz[graphite2,icu,ucdn] luajit --raw --output=vcpkg
       env:
         VCPKG_DEFAULT_TRIPLET: x64-windows-static
         VCPKG_PLATFORM_TOOLSET: v142
-      displayName: Pack packages into 7z
-    - publish: $(System.DefaultWorkingDirectory)\vcpkg
-      artifact: SileDeps
+      displayName: Export packages
+    - publish: $(System.DefaultWorkingDirectory)/vcpkg
+      artifact: sile_deps-$(VCPKG_TRIPLET)
